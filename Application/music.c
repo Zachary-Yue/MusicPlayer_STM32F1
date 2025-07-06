@@ -37,7 +37,7 @@ static void MusicNoteSet(const Music_t *m)
 }
 
 
-MusicControl_t MusicControl = { 0, 0, 0, Music_PAUSE };
+MusicControl_t MusicControl = { 0, 0, 0, Music_PAUSE };     // 播放控制
 
 
 /**
@@ -78,6 +78,7 @@ void MusicTask(const Music_t *m)
 }
 
 
+// 开始播放
 void MusicStart(const Music_t *m)
 {
     MusicControl.pnote = 0;
@@ -87,18 +88,21 @@ void MusicStart(const Music_t *m)
     TaskTimerPeriod_Modify(m->baiscTimePeriod);
 }
 
+// 继续播放
 void MusicResume(void)
 {
     MusicControl.state = Music_PLAY;
     TIM_OutputCompare();
 }
 
+// 暂停
 void MusicPause(void)
 {
     MusicControl.state = Music_PAUSE;
     TIM_ForceHigh();
 }
 
+// 停止
 void MusicStop(void)
 {
     MusicControl.pnote = 0;
@@ -109,11 +113,21 @@ void MusicStop(void)
     TaskTimerPeriod_Modify(30000 - 1);
 }
 
+
+/**
+ * @brief 没有播放的时候强制输出高电平。
+ * @note  我的无源蜂鸣器是低电平触发，一直低电平会发热。
+ * 
+ */
 void TIM_ForceHigh(void)
 {
     MODIFY_REG(Music1_TIM->CCMR1, TIM_CCMR1_OC1M, TIM_OCMode_Active);
 }
 
+/**
+ * @brief 播放音乐时设置成输出比较模式。
+ * 
+ */
 void TIM_OutputCompare(void)
 {
     MODIFY_REG(Music1_TIM->CCMR1, TIM_CCMR1_OC1M, TIM_OCMode_Toggle);
